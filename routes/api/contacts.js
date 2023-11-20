@@ -5,7 +5,7 @@ const router = express.Router()
 router.get('/', async (req, res, next) => {
     try {
         const result = await contacts.listContacts();
-        return res.json({success: 'True', message: result})
+        return res.json(result)
     } catch (error) {
         return res.status(500).json({success: false, message: 'Internal Server Error'});
     }
@@ -46,6 +46,16 @@ router.put('/:contactId', async (req, res, next) => {
         const result = await contacts.updateContact(contactId, req.body);
         return res.status(result.status).json(result.message)
     } catch (error){
+        return res.status(500).json({success: false, message: 'Internal Server Error'});
+    }
+})
+
+router.patch('/:contactId/favorite', async (req, res, next) => {
+    try {
+        const {contactId} = req.params;
+        const result = await contacts.updateFavoriteStatus(contactId, req.body);
+        return res.status(result.status).json(result.message)
+    } catch (error) {
         return res.status(500).json({success: false, message: 'Internal Server Error'});
     }
 })
