@@ -1,53 +1,16 @@
 const express = require('express')
 const contacts = require('../../models/contacts');
+const isValidFavorite = require("../../middlewares/checkFavorite");
+const isValidId = require("../../middlewares/isValidId");
+const validateBody = require("../../middlewares/isValidBody");
+const {contactSchema} = require("../../schemas/validationSchema");
 const router = express.Router()
 
-router.get('/', async (req, res, next) => {
-    try {
-        const result = await contacts.listContacts();
-        return res.json({success: 'True', message: result})
-    } catch (error) {
-        return res.status(500).json({success: false, message: 'Internal Server Error'});
-    }
-})
-
-router.get('/:contactId', async (req, res, next) => {
-    try {
-        const {contactId} = req.params;
-        const result = await contacts.getContactById(contactId);
-        return res.status(result.status).json(result.message)
-    } catch (error) {
-        return res.status(500).json({success: false, message: 'Internal Server Error'});
-    }
-})
-
-router.post('/', async (req, res, next) => {
-    try {
-        const result = await contacts.addContact(req.body);
-        return res.status(result.status).json(result.message)
-    } catch (error) {
-        return res.status(500).json({success: false, message: 'Internal Server Error'});
-    }
-})
-
-router.delete('/:contactId', async (req, res, next) => {
-    try {
-        const {contactId} = req.params;
-        const result = await contacts.removeContact(contactId);
-        return res.status(result.status).json(result.message)
-    } catch (error){
-        return res.status(500).json({success: false, message: 'Internal Server Error'});
-    }
-})
-
-router.put('/:contactId', async (req, res, next) => {
-    try {
-        const {contactId} = req.params;
-        const result = await contacts.updateContact(contactId, req.body);
-        return res.status(result.status).json(result.message)
-    } catch (error){
-        return res.status(500).json({success: false, message: 'Internal Server Error'});
-    }
-})
+router.get('/', contacts.listContacts)
+router.get('/:contactId', isValidId, contacts.getContactById)
+router.post('/', validateBody(contactSchema, "post"), contacts.addContact)
+router.delete('/:contactId', isValidId, contacts.removeContact)
+router.put('/:contactId', isValidId, validateBody(contactSchema, "put"), contacts.updateContact)
+router.patch('/:contactId/favorite', isValidId, isValidFavorite, contacts.updateFavoriteStatus)
 
 module.exports = router
