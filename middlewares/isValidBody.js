@@ -1,11 +1,11 @@
-const validateBody = (schema, request_type) => {
+const validateBody = (schema) => {
     return (req, res, next) => {
         if (Object.keys(req.body).length === 0) {
             return res.status(400).send({message: "missing fields"});
         }
 
         let validationOptions = {};
-        if (request_type === "post") {
+        if (req.method === "POST") {
             validationOptions = {
                 abortEarly: false,
                 presence: "required",
