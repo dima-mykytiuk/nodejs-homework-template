@@ -3,12 +3,14 @@ const Joi = require('joi');
 const {Contact} = require("../schemas/mongoSchema");
 
 async function listContacts(req, res, next) {
-    const data = await Contact.find();
+    const { _id: owner } = req.user;
+    const data = await Contact.find({ owner });
     res.status(200).json(data);
 }
 
 async function addContact(req, res, next){
-    const newContact = await Contact.create(req.body);
+    const {_id: owner} = req.user
+    const newContact = await Contact.create({...req.body, owner});
     res.status(201).json(newContact);
 }
 
