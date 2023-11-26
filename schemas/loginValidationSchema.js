@@ -6,6 +6,9 @@ const validateLogin = (schema) => {
         }
         const {email, password} = req.body;
         const user = await User.findOne({email});
+        if (!user.verify){
+            return res.status(400).send({message: "Verify is required"})
+        }
         if (!user) {
             return res.status(409).send({message: "No user with provided email"})
         }
